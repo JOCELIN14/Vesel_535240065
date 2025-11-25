@@ -13,6 +13,8 @@
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "@prisma/adapter-libsql": "^7.0.1",
     "@prisma/client": "^6.19.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
