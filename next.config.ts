@@ -1,7 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+module.exports = {
+  experimental: {
+    turbo: false, // matikan Turbopack
+  },
 };
-
-export default nextConfig;

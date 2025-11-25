@@ -1,17 +1,18 @@
+import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
+// GET single post by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
-
+  const params = await context.params;
   try {
+    const { id } = params;
     const post = await prisma.post.findUnique({
-      where: { id: parseInt(id) },
+      where: {
+        id: parseInt(id),
+      },
     });
 
     if (!post) {
@@ -20,6 +21,7 @@ export async function GET(
 
     return NextResponse.json(post);
   } catch (error) {
+    console.error("Error fetching post:", error);
     return NextResponse.json(
       { error: "Failed to fetch post" },
       { status: 500 }
@@ -27,30 +29,31 @@ export async function GET(
   }
 }
 
+// UPDATE post by ID
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
-
+  const params = await context.params;
   try {
+    const { id } = params;
     const body = await request.json();
+    const { title, content, author } = body;
 
     const post = await prisma.post.update({
-      where: { id: parseInt(id) },
+      where: {
+        id: parseInt(id),
+      },
       data: {
-        author: body.author,
-        title: body.title,
-        content: body.content,
-        imageUrl: body.imageUrl || null,
-        category: body.category,
-        tags: body.tags || null,
-        isPublic: body.isPublic !== false,
+        ...(title && { title }),
+        ...(content && { content }),
+        ...(author && { author }),
       },
     });
 
     return NextResponse.json(post);
   } catch (error) {
+    console.error("Error updating post:", error);
     return NextResponse.json(
       { error: "Failed to update post" },
       { status: 500 }
@@ -58,19 +61,23 @@ export async function PUT(
   }
 }
 
+// DELETE post by ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
-
+  const params = await context.params;
   try {
-    const deletedPost = await prisma.post.delete({
-      where: { id: parseInt(id) },
+    const { id } = params;
+    await prisma.post.delete({
+      where: {
+        id: parseInt(id),
+      },
     });
 
     return NextResponse.json({ message: "Post deleted successfully" });
   } catch (error) {
+    console.error("Error deleting post:", error);
     return NextResponse.json(
       { error: "Failed to delete post" },
       { status: 500 }
